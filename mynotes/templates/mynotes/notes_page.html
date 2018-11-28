@@ -1,0 +1,35 @@
+{% extends 'mynotes/base.html' %}
+
+{% block content %}
+<div class="post">
+    <div class="container-fluid">
+        <h1>Date - {{ date }}
+            <label class="pull-right" id="label-for-save" for="submit-form" tabindex="0">Save</label>
+        </h1>
+    </div>
+    <div class="container-fluid note">
+        <form action="/mynotes/{{ date }}" method="post">
+            {% csrf_token %}
+            <textarea name="content" required id="id_content">{% for note in notes %}{{ note }}{% endfor %}</textarea>
+            <input type="submit" id="submit-form" class="hidden">
+        </form>
+    </div>
+    <div class="container">
+        Document created at {{ ctime }}, Last Modified/Saved - {{ mtime }}, Size - {{ size }} bytes
+        <br>
+        Format - {{ format }}
+    </div>
+</div>
+{% endblock %}
+
+{% block content-list %}
+<div class="container-fluid list">
+    <h1>List of notes</h1>
+    <ul>
+        {% for date in list %}
+        <li><a href="/mynotes/{{ date }}">{{ date }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

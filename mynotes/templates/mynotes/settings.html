@@ -1,0 +1,22 @@
+{% extends 'mynotes/base.html' %}
+
+{% block content %}
+<div class="settings">
+    <div class="container-fluid">
+        <h1>Settings</h1>
+    </div>
+    <form class="form-horizontal">
+        {% for key, value in settings.items %}
+        <div class="form-group">
+            <label class="col-sm-2 control-label">{{ key|capfirst }}</label>
+            <div class="col-sm-10">
+                <p class="form-control-static">{{ value }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </form>
+</div>
+{% endblock %}
+
+{% block content-list %}
+{% endblock %}

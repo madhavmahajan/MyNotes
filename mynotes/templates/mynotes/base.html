@@ -1,0 +1,58 @@
+{% load static %}
+<html>
+    <head>
+        <title>My Notes</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="{% static 'mynotes/style.css' %}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-static-top page-header">
+            <div class="container">
+                <div class="navbar-header">
+                    <a href="/mynotes" >My Notes</a>
+                </div>
+                <div class="collapse navbar-collapse">
+                    <form class="navbar-form navbar-left search" action="/mynotes/search/" method="post">
+                        {% csrf_token %}
+                        <!--
+                        {{ search_form }}
+                        -->
+                        <select name="type" id="id_type">
+                            <option value="daily-notes">daily-notes</option>
+                            <option value="notes">notes</option>
+                        </select>
+                        <input type="text" name="search_str" maxlength="50" minlength="5" required="" id="id_search_str" placeholder="Search notes">
+                    </form>
+                    <p class="nav navbar-nav navbar-right">
+                        <a href="/mynotes/settings" class="navbar-link">
+                            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </nav>
+        {% if alert %}
+        <section class="section section-top section-full">
+            <div class="alert alert-{{ alert.type }}" role="alert">
+                {{ alert.message}}
+            </div>
+        </section>
+        {% endif %}
+        <section class="section section-top section-full">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-10">
+                    {% block content %}
+                    {% endblock %}
+                    </div>
+                    <div class="col-md-2">
+                    {% block content-list %}
+                    {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>

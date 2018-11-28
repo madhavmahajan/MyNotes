@@ -1,0 +1,20 @@
+{% extends 'mynotes/base.html' %}
+
+{% block content %}
+<div class="post">
+    <div class="container-fluid">
+        <h1>Document type - {{ document_type }}, Search string - {{ search_str }}
+        </h1>
+    </div>
+    <div class="container-fluid note">
+        <ul>
+        {% for doc in documents %}
+            <li><a href="/mynotes/{{ doc.0 }}">{{ doc.0 }}</a> - {{ doc.1 }}
+            </li>
+        {% empty %}
+            Sorry, no '{{ document_type }}' find with search string '{{ search_str }}'
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
