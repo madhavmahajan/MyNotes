@@ -110,6 +110,51 @@ def get_access_and_modify_time_for_notes(year, month, day):
         }
 
 
+def create_tree(path, document=None):
+    """Create desired as per path and save document as leaf node
+
+    Args:
+        path (list): List of nodes build up using absolute path
+        document (models.Document): Document object, if leaf node is not a directory
+    """
+    if path[0] != "root":
+        raise Exception("Invalid path '{}' of the document to be saved in the tree".format(path))
+
+    # if path[1] element itself is new, it's parent wil be set as "root" directory
+    try:
+        entity_object = models.Tree.objects.get(entity="root")
+    except:
+        raise Exception("Entry '{}' not found in the tree! Please check if setup is executed.".format('root'))
+
+    if not document:
+        # If document is not being saved at a leaf node of the path, it is assumed that leaf is also a directory
+        directory_path = path[:]
+    else:
+        # If document is to be saved at a leaf node, it is assumed that path till second last entries are directory
+        directory_path = path[:-1]
+
+    # Create required directory hierarchy
+    for entity in directory_path:
+        parent = entity_object
+        try:
+            entity_object = models.Tree.objects.get(entity=entity, parent=parent)
+        except models.Tree.DoesNotExist:
+            entity_object = models.Tree.objects.create(entity=entity, document=None, parent=parent)
+            entity_object.save()
+            try:
+                entity_object = models.Tree.objects.get(entity=entity, parent=parent)
+            except Exception as e:
+                raise Exception("Failed to create node '{}' in tree. Reason - {}".format(entity, e))
+
+    if document:
+        # Save document as a leaf node in the tree
+        try:
+            entity_object = models.Tree.objects.create(entity=path[-1], document=document, parent=entity_object)
+            entity_object.save()
+        except Exception as e:
+            raise Exception("Failed to save document. Reason - {}".format(e))
+
+
 def save_note(year, month, day, notes):
     """Create new note or update previously saved note
 
@@ -144,10 +189,9 @@ def save_note(year, month, day, notes):
                                                   atime=ctime, mtime=ctime)
         document.save()
 
-        # save it in tree
-        parent = models.Tree.objects.get(entity='daily-notes')
-        tree = models.Tree.objects.create(entity=document_name, document=document, parent=parent)
-        tree.save()
+        # Create tree and save it as a leaf node
+        path = ["root", "daily-notes", str(year), str(month), str(day)]
+        create_tree(path, document)
 
 
 def search_data_in_documents(search_str):
@@ -166,5 +210,7 @@ def search_data_in_documents(search_str):
             document = models.Document.objects.get(data=data)
         except models.Document.DoesNotExist:
             continue
-        list_of_documents.append((document.name.replace('-', '/'), data.data))
+        list_of_documents.append(
+            (document.name.replace('-', '/'), utils.format_certain_string_in_content(data.data, search_str))
+        )
     return list_of_documents
